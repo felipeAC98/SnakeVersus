@@ -1,2 +1,6 @@
 # SnakeVersus
 Jogo que será o trabalho final para a matéria de laboratório de arquitetura de computadores 2
+
+
+
+O arquivo win32.inc deve estar na mesma pasta que o projeto (pastar Irvine caso esteja utilizando a mesma pasta das atividades em sala).
