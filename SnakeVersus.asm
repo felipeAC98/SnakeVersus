@@ -23,7 +23,10 @@ x DWORD 0; current position
 y DWORD 0; of the figure
 
 posx DWORD 1; posicao inicial do jogador
-posy DWORD 15; 
+posy DWORD 15;
+
+sumx SDWORD 0; posicao inicial do jogador
+sumy SDWORD 0;
 character WORD '0'; filled with this symbol
 
 
@@ -41,6 +44,7 @@ ADDR buffer, bufferSize, bufferCoord, ADDR region
 INVOKE Sleep, 250; delay between frames
 
 ANIMATION :
+call DRAWPOINT
 mov  eax, 50; sleep, to allow OS to time slice
 call Delay
 call ReadKey
@@ -76,8 +80,63 @@ jmp ANIMATION
 exit
 main ENDP
 
+; Toda vez que eh apertado algum botao de movimentacao alguma das funcoes abaixo sera chamada para realizar a soma na direcao a ser movimentada
+; e entao chamar a funcao DRAWPOINT para desenhar um ponto na posicao resultante da soma
 
-;# Essa funcao(e a proxima) sao responsaveis por desenhar a tela inicial do jogo
+MOVE_A PROC USES eax edx
+
+mov sumx, -1
+mov sumy, 0
+ret
+
+MOVE_A ENDP
+
+MOVE_D PROC USES eax edx ecx
+
+mov sumx, 1
+mov sumy, 0
+ret
+MOVE_D ENDP
+
+
+MOVE_S PROC USES eax edx ecx
+
+mov sumy, 1
+mov sumx, 0
+ret
+
+MOVE_S ENDP
+
+MOVE_W PROC USES eax edx
+
+mov sumy, -1
+mov sumx, 0
+ret
+MOVE_W ENDP
+
+DRAWPOINT PROC USES eax edx ecx
+mov eax, sumx
+add posx, eax
+mov eax, sumy
+add posy, eax
+
+mov eax, posy
+mov edx, COLS
+mul edx; multiplica edx com eax e coloca o resultado em eax.Ele multiplica pois para chegar na linha Y, eh necessario andar no vetor Y*tamanho da linha(numero de colunas)
+add eax, posx
+mov buffer[eax * CHAR_INFO].Char, 'T'; aqui que eh o desenho da linha da tela
+
+invoke WriteConsoleOutput, console,
+ADDR buffer, bufferSize, bufferCoord, ADDR region
+INVOKE Sleep, 25; delay between frames
+ret
+
+DRAWPOINT ENDP
+
+
+
+
+; # Essa funcao(e a proxima) sao responsaveis por desenhar a tela inicial do jogo
 
 CharToBuffer PROC USES eax edx bufx : DWORD, bufy : DWORD, char : WORD
 mov eax, bufy; bufy = parametro edx = y
@@ -93,22 +152,22 @@ jmp fimDesenho
 t2 :
 cmp bufx, COLS - 1
 jne t3
-mov buffer[eax * CHAR_INFO].Char, dx; 
+mov buffer[eax * CHAR_INFO].Char, dx;
 jmp fimDesenho
 
 t3 :
 cmp bufy, 0
 jne t4
-mov buffer[eax * CHAR_INFO].Char, dx; 
+mov buffer[eax * CHAR_INFO].Char, dx;
 jmp fimDesenho
 
 t4 :
 cmp bufy, ROWS - 1
 jne fimDesenho
-mov buffer[eax * CHAR_INFO].Char, dx; 
+mov buffer[eax * CHAR_INFO].Char, dx;
 
 
-fimDesenho :
+fimDesenho:
 ret
 CharToBuffer ENDP
 
@@ -140,51 +199,5 @@ ONELINE : ; 'Dois loops encadeados aqui'
 	RenderScene ENDP
 
 
-; Toda vez que eh apertado algum botao de movimentacao alguma das funcoes abaixo sera chamada para realizar a soma na direcao a ser movimentada
-;e entao chamar a funcao DRAWPOINT para desenhar um ponto na posicao resultante da soma
 
-MOVE_A PROC USES eax edx
-
-	sub posx, 1
-	call DRAWPOINT
-	ret
-
-MOVE_A ENDP
-
-MOVE_D PROC USES eax edx ecx
-
-	add posx, 1
-	call DRAWPOINT
-	ret
-MOVE_D ENDP
-
-
-MOVE_S PROC USES eax edx ecx
-
-	add posy, 1
-	call DRAWPOINT
-	ret
-
-MOVE_S ENDP
-
-MOVE_W PROC USES eax edx
-
-	sub posy, 1
-	call DRAWPOINT
-	ret
-MOVE_W ENDP
-
-DRAWPOINT PROC USES eax edx ecx
-	mov eax, posy; bufy = parametro edx = y
-	mov edx, COLS
-	mul edx; multiplica edx e eax
-	add eax, posx
-	mov buffer[eax * CHAR_INFO].Char, '@'; aqui que eh o desenho da linha da tela
-
-	invoke WriteConsoleOutput, console,
-	ADDR buffer, bufferSize, bufferCoord, ADDR region
-	INVOKE Sleep, 250; delay between frames
-	ret
-
-DRAWPOINT ENDP
-END main
+	END main
