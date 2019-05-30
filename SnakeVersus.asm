@@ -189,7 +189,7 @@ MOVE_I ENDP
 
 DESENHACARACTERE PROC USES eax edx ecx ebx
 
-	;// A estrutura ATRIBUTOJOGADOR é utilizada para a funcao de desenhar verificar onde cada objeto do jogo sera impresso (e suas caracteristicas), 
+	;// A estrutura ATRIBUTOJOGADOR Ã© utilizada para a funcao de desenhar verificar onde cada objeto do jogo sera impresso (e suas caracteristicas), 
 	;// portanto eh apontado o inicio dela no registrador ESI (isso para cada jogador no momento em que for ser atualizado na tela)
 	;// para que seja possivel ler os valores dela (com auxilio de indices) e entao inserir na estrutura da tela
 
