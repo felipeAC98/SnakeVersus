@@ -6,35 +6,36 @@ INCLUDE Macros.inc
 
 
 
-COLS = 100; number of columns
-ROWS = 30; number of rows
-CHAR_ATTRIBUTE = 0Fh; COR BRANCA
+COLS = 100; numero de colunas
+ROWS = 30; numero de linhas
 
+atributosCaracteres STRUCT
+	Char          WORD ?
+	Atributos    WORD ?
+atributosCaracteres ENDS
+
+atributosJogador STRUCT
+	caractere	WORD ?
+	corCaracteree WORD ?
+	posicaoX     DWORD ?
+	posicaoY     DWORD ?
+	somadorX	SDWORD ?
+	somadorY	SDWORD ?
+atributosJogador ENDS
 
 .data
-console HANDLE 0
-buffer CHAR_INFO ROWS * COLS DUP(<< ' ' > , CHAR_ATTRIBUTE > )
-bufferSize COORD <COLS, ROWS>
-bufferCoord COORD <0, 0>
-region SMALL_RECT <0, 0, COLS , ROWS >
 
-x DWORD 0; current position
-y DWORD 0; of the figure
+	console HANDLE 0
 
-caracterJog1 WORD '1'
-caracterJog2 WORD '2'
+	moldura atributosJogador < 0DBh, 0Fh,0, 0, 0, 0>
+	jogador1 atributosJogador < 0DBh, 05h, 1, ROWS/2, 0 , 0>
+	jogador2 atributosJogador < 0DBh, 09h, COLS-2, ROWS / 2, 0, 0>
 
-posjog2x DWORD 98; posicao inicial do jogador
-posjog2y DWORD 15;
 
-sumjog2x SDWORD 0; posicao inicial do jogador
-sumjog2y SDWORD 0;
-
-posjog1x DWORD 1; posicao inicial do jogador 1
-posjog1y DWORD 15;
-
-sumjog1x SDWORD 0; Somador do jogador 1
-sumjog1y SDWORD 0;
+	buffer atributosCaracteres ROWS * COLS DUP(<' ', 0Fh >)
+	bufferSize COORD <COLS, ROWS>
+	bufferCoord COORD <0, 0>
+	region SMALL_RECT <0, 0, COLS, ROWS >
 
 .code
 main PROC
@@ -52,8 +53,10 @@ main ENDP
 iniciaMovimentacao PROC
 
 	ANIMATION:
-	call DESENHACABECA1
-	call DESENHACABECA2
+	mov esi, OFFSET jogador1
+	call DESENHACARACTERE
+	mov esi, OFFSET jogador2
+	call DESENHACARACTERE
 	mov  eax, 100; sleep, to allow OS to time slice
 	call Delay
 	call ReadKey
@@ -121,32 +124,32 @@ iniciaMovimentacao ENDP
 
 MOVE_A PROC USES eax edx
 
-mov sumjog1x, -1
-mov sumjog1y, 0
+mov jogador1.somadorX, -1
+mov jogador1.somadorY, 0
 ret
 
 MOVE_A ENDP
 
 MOVE_D PROC USES eax edx ecx
 
-mov sumjog1x, 1
-mov sumjog1y, 0
+mov jogador1.somadorX, 1
+mov jogador1.somadorY, 0
 ret
 MOVE_D ENDP
 
 
 MOVE_S PROC USES eax edx ecx
 
-mov sumjog1y, 1
-mov sumjog1x, 0
+mov jogador1.somadorY, 1
+mov jogador1.somadorX, 0
 ret
 
 MOVE_S ENDP
 
 MOVE_W PROC USES eax edx
 
-mov sumjog1y, -1
-mov sumjog1x, 0
+mov jogador1.somadorY, -1
+mov jogador1.somadorX, 0
 ret
 MOVE_W ENDP
 
@@ -154,129 +157,130 @@ MOVE_W ENDP
 
 MOVE_J PROC USES eax edx
 
-mov sumjog2x, -1
-mov sumjog2y, 0
+mov jogador2.somadorX, -1
+mov jogador2.somadory, 0
 ret
 MOVE_J ENDP
 
 MOVE_L PROC USES eax edx ecx
 
-mov sumjog2x, 1
-mov sumjog2y, 0
+mov jogador2.somadorX, 1
+mov jogador2.somadory, 0
 ret
 MOVE_L ENDP
 
 
 MOVE_K PROC USES eax edx ecx
 
-mov sumjog2y, 1
-mov sumjog2x, 0
+mov jogador2.somadory, 1
+mov jogador2.somadorX, 0
 ret
 
 MOVE_K ENDP
 
 MOVE_I PROC USES eax edx
 
-mov sumjog2y, -1
-mov sumjog2x, 0
+mov jogador2.somadory, -1
+mov jogador2.somadorX, 0
 ret
 MOVE_I ENDP
 
-;//################## PROCEDIMENTO QUE EFETUA A MOVIMENTACAO JOGADOR 1 NA TELA ##################//
+;//################## PROCEDIMENTO QUE EFETUA A INCERCAO DE CARACTERES NA TELA ##################//
 
-DESENHACABECA1 PROC USES eax edx ecx ebx
+DESENHACARACTERE PROC USES eax edx ecx ebx
 
-	mov bx, caracterJog1
-	mov eax, sumjog1x
-	add posjog1x, eax
-	mov eax, sumjog1y
-	add posjog1y, eax
+	;// A estrutura ATRIBUTOJOGADOR é utilizada para a funcao de desenhar verificar onde cada objeto do jogo sera impresso (e suas caracteristicas), 
+	;// portanto eh apontado o inicio dela no registrador ESI (isso para cada jogador no momento em que for ser atualizado na tela)
+	;// para que seja possivel ler os valores dela (com auxilio de indices) e entao inserir na estrutura da tela
 
-	mov eax, posjog1y
+	; caracter	WORD ?
+	; corCaractere WORD ?
+	; posicaoX     DWORD ?
+	; posicaoY     DWORD ?
+	; somadorX	SDWORD ?
+	; somadorY	SDWORD ?
+	; jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 0, 0>
+
+	mov eax, 0
+	mov ebx, 0
+	mov edx, 0
+	mov bx, WORD PTR[esi];				// Caractere
+	mov eax, SDWORD PTR[esi + 12];		// SomadorX
+	add[esi + 4], eax;					// PosicaoX	
+	mov eax, SDWORD PTR[esi + 16];		// Somador Y
+	add[esi + 8], eax;					// Posicao Y
+
+	mov eax, [esi + 8];				// Posicao Y
 	mov edx, COLS
 	mul edx; multiplica edx com eax e coloca o resultado em eax.Ele multiplica pois para chegar na linha Y, eh necessario andar no vetor Y*tamanho da linha(numero de colunas)
-	add eax, posjog1x
-	mov buffer[eax * CHAR_INFO].Char, bx; aqui que eh o desenho da linha da tela
+	add eax, [esi + 4];				// Posicao X
+	mov buffer[eax * atributosCaracteres].Char, bx; posicao no vetor * tamanho de cada variavel
+	mov bx, WORD PTR[esi + 2];			// Cor caracter
+	mov buffer[eax * atributosCaracteres].Atributos, bx; aqui que eh o desenho da linha da tela
 
 	invoke WriteConsoleOutput, console,
 	ADDR buffer, bufferSize, bufferCoord, ADDR region
 
 ret
 
-DESENHACABECA1 ENDP
-
-;//################## PROCEDIMENTO QUE EFETUA A MOVIMENTACAO JOGADOR 2 NA TELA ##################//
-
-DESENHACABECA2 PROC USES eax edx ecx ebx
-
-mov bx, caracterJog2
-mov eax, sumjog2x
-add posjog2x, eax
-mov eax, sumjog2y
-add posjog2y, eax
-
-mov eax, posjog2y
-mov edx, COLS
-mul edx; multiplica edx com eax e coloca o resultado em eax.Ele multiplica pois para chegar na linha Y, eh necessario andar no vetor Y*tamanho da linha(numero de colunas)
-add eax, posjog2x
-mov buffer[eax * CHAR_INFO].Char, bx; aqui que eh o desenho da linha da tela
-
-invoke WriteConsoleOutput, console,
-ADDR buffer, bufferSize, bufferCoord, ADDR region
-
-ret
-DESENHACABECA2 ENDP
-
+DESENHACARACTERE ENDP
 ;//################## IMPRESSAO MOLDURA JOGO ##################// 
 
-printMoldura PROC USES eax edx ecx
-
-	mov caracterJog1, '*'
-
-	mov ecx, COLS-1
-	mov sumjog1x, 1
-	mov sumjog1y, 0
-	mov posjog1x, 0
-	mov posjog1y, 0
+printMoldura PROC  USES esi ecx
+	mov esi, OFFSET moldura; //indicando o endereco do objeto moldura
+	mov ecx, COLS
+;// definindo inicio da moldura superior
+	mov moldura.caractere , 0CDh
+	mov moldura.somadorX, 1
+	mov moldura.somadorY, 0
+	mov moldura.posicaoX, -1
+	mov moldura.posicaoY, 0
 molduraSuperior:
-	call DESENHACABECA1
+	call DESENHACARACTERE
 	loop molduraSuperior
 
 	mov ecx, COLS -1
-;	mov sumjog1x, 1
-;	mov sumjog1y, 0
-	mov posjog1x, 0
-	mov posjog1y, ROWS -1
+;	mov moldura.somadorX, 1
+;	mov moldura.somadorY, 0
+	mov moldura.posicaoX, 0
+	mov moldura.posicaoY, ROWS -1
 
 molduraInferior:
-	call DESENHACABECA1
+	call DESENHACARACTERE
 	loop molduraInferior
 
-	mov ecx, ROWS -1
-	mov sumjog1x, 0
-	mov sumjog1y, 1
-	mov posjog1x, 0
-	mov posjog1y, 0
+
+	mov  moldura.caractere, 0C9h
+	mov ecx, ROWS -2
+	mov moldura.somadorX, 0
+	mov moldura.somadorY, 1
+	mov moldura.posicaoX, 0
+	mov moldura.posicaoY, -1
+	call DESENHACARACTERE
+	mov  moldura.caractere, 0BAh
+
 molduraEsquerda :
-	call DESENHACABECA1
+	call DESENHACARACTERE
 	loop molduraEsquerda
+	mov  moldura.caractere, 0C8h
+	call DESENHACARACTERE
 
-	mov ecx, ROWS  -1
-	mov sumjog1x, 0
-	mov sumjog1y, 1
-	mov posjog1x, COLS -1
-	mov posjog1y, 0
-
+	mov  moldura.caractere, 0BBh
+	mov ecx, ROWS  -2
+	mov  moldura.somadorX, 0
+	mov moldura.somadorY, 1
+	mov moldura.posicaoX, COLS -1
+	mov moldura.posicaoY, -1
+	call DESENHACARACTERE
+	mov  moldura.caractere, 0BAh
 molduraDireita :
-	call DESENHACABECA1
+	call DESENHACARACTERE
 	loop molduraDireita
+	mov  moldura.caractere, 0BCh
+	call DESENHACARACTERE
 
-	mov sumjog1x, 0
-	mov sumjog1y, 0
-	mov posjog1x, 1
-	mov posjog1y, 15
 
-	mov caracterJog1, '1'
+	mov  moldura.caractere, 0DBh
 ret
 
 printMoldura ENDP
