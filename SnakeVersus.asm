@@ -67,7 +67,7 @@ pszSound : PTR BYTE,
 					byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
 					byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
 					byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
-					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0
 
 
 	jogador2Vencedor byte'                                                                                                        ', 0ah
@@ -90,7 +90,7 @@ pszSound : PTR BYTE,
 					byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
 					byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
 					byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
-					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0
                                                        
                                                        
                                                        
@@ -106,6 +106,19 @@ pszSound : PTR BYTE,
 	INVOKE PlaySound, OFFSET file, NULL, SND_FILENAME
 	call iniciaMovimentacao
 
+	COLIDIU::
+		cmp esi , OFFSET jogador1
+		je jogador1bateu
+jogador2bateu:
+		mov edx, OFFSET jogador1Vencedor
+		call WriteString
+		jmp fim
+jogador1bateu :
+
+		mov edx, OFFSET jogador2Vencedor
+		call WriteString
+
+fim:		call ReadChar
 exit
 main ENDP
 
@@ -172,9 +185,7 @@ iniciaMovimentacao PROC
 	moveK :
 	cmp dx, 'K'
 	jne ANIMATION
-	call MOVE_K
-		mov edx, OFFSET jogador2Vencedor
-		call WriteString
+		call MOVE_K
 	jmp ANIMATION
 
 iniciaMovimentacao ENDP
@@ -263,45 +274,60 @@ DESENHACARACTERE PROC USES ecx
 	; somadorY	SDWORD ?
 	; jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 0, 0>
 
+	
 	mov eax, 0
 	mov ebx, 0
 	mov edx, 0
 	mov bx, WORD PTR[esi];				// Caractere
 	mov eax, SDWORD PTR[esi + 12];		// SomadorX
-	add[esi + 4], eax;					// PosicaoX	
+	add[esi + 4], eax;					// NOVA PosicaoX	
 	mov eax, SDWORD PTR[esi + 16];		// Somador Y
-	add[esi + 8], eax;					// Posicao Y
+	add[esi + 8], eax;					// NOVA Posicao Y
+
+
 
 	mov eax, [esi + 8];				// Posicao Y
 	mov edx, COLS
 	mul edx; multiplica edx com eax e coloca o resultado em eax.Ele multiplica pois para chegar na linha Y, eh necessario andar no vetor Y*tamanho da linha(numero de colunas)
 	add eax, [esi + 4];				// Posicao X
+
+	call verificaColisao
+
 	mov buffer[eax * atributosCaracteres].Char, bx; posicao no vetor * tamanho de cada variavel
 	mov bx, WORD PTR[esi + 2];			// Cor caracter
 	mov buffer[eax * atributosCaracteres].Atributos, bx; aqui que eh o desenho da linha da tela
-
 	invoke WriteConsoleOutput, console,
 	ADDR buffer, bufferSize, bufferCoord, ADDR region
 
 ret
 
 DESENHACARACTERE ENDP
+
+verificaColisao PROC
+
+	cmp buffer[eax * atributosCaracteres].Char , ' '
+	jne COLIDIU
+
+ret
+verificaColisao ENDP
+
+
 ;//################## IMPRESSAO MOLDURA JOGO ##################// 
 
 printMoldura PROC 
 	mov esi, OFFSET moldura; //indicando o endereco do objeto moldura
-	mov ecx, COLS
+	mov ecx, COLS - 2
 ;// definindo inicio da moldura superior
 	mov moldura.caractere , 0CDh
 	mov moldura.somadorX, 1
 	mov moldura.somadorY, 0
-	mov moldura.posicaoX, -1
+	mov moldura.posicaoX, 0
 	mov moldura.posicaoY, 0
 molduraSuperior:
 	call DESENHACARACTERE
 	loop molduraSuperior
 
-	mov ecx, COLS -1
+	mov ecx, COLS -2
 ;	mov moldura.somadorX, 1
 ;	mov moldura.somadorY, 0
 	mov moldura.posicaoX, 0
