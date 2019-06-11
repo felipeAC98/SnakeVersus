@@ -3,47 +3,107 @@
 INCLUDE Irvine32.inc
 INCLUDE win32.inc
 INCLUDE Macros.inc
+includelib Winmm.lib
+
+PlaySound PROTO,
+pszSound : PTR BYTE,
+	hmod : DWORD,
+	fdwSound : DWORD
+
+	COLS = 100; numero de colunas
+	ROWS = 30; numero de linhas
 
 
-
-COLS = 100; numero de colunas
-ROWS = 30; numero de linhas
-
-atributosCaracteres STRUCT
+	atributosCaracteres STRUCT
 	Char          WORD ?
 	Atributos    WORD ?
-atributosCaracteres ENDS
+	atributosCaracteres ENDS
 
-atributosJogador STRUCT
+	atributosJogador STRUCT
 	caractere	WORD ?
 	corCaracteree WORD ?
 	posicaoX     DWORD ?
 	posicaoY     DWORD ?
 	somadorX	SDWORD ?
 	somadorY	SDWORD ?
-atributosJogador ENDS
+	atributosJogador ENDS
 
-.data
+	.data
+
+	SND_FILENAME DWORD 00000001h
+	SND_FILENAME2 DWORD 00000002h
+
+	file BYTE "c:\\clap.wav", 0
+	abertura BYTE "c:\\SnakeVersus.wav", 0
 
 	console HANDLE 0
-
-	moldura atributosJogador < 0DBh, 0Fh,0, 0, 0, 0>
-	jogador1 atributosJogador < 0DBh, 05h, 1, ROWS/2, 0 , 0>
-	jogador2 atributosJogador < 0DBh, 09h, COLS-2, ROWS / 2, 0, 0>
-
+	moldura atributosJogador < 0DBh, 0Fh, 0, 0, 0, 0>
+	jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 1, 0>
+	jogador2 atributosJogador < 0DBh, 09h, COLS - 2, ROWS / 2, -1, 0>
 
 	buffer atributosCaracteres ROWS * COLS DUP(<' ', 0Fh >)
 	bufferSize COORD <COLS, ROWS>
 	bufferCoord COORD <0, 0>
 	region SMALL_RECT <0, 0, COLS, ROWS >
 
-.code
-main PROC
+
+	jogador1Vencedor byte'                                                                                                        ',0ah
+					byte'                                                                                                        ',0ah
+					byte'       $$$$$\                                 $$\                                    $$\                ', 0ah
+					byte'       \__$$ |                                $$ |                                 $$$$ |               ', 0ah
+					byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 \_$$ |               ', 0ah
+					byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                  $$ |               ', 0ah
+					byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|                 $$ |               ', 0ah
+					byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                       $$ |               ', 0ah
+					byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$\              ', 0ah
+					byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \______|			        ', 0ah
+					byte'                      $$\   $$ |                                                                        ', 0ah
+					byte'                      \$$$$$$  |                                                                        ', 0ah
+					byte'                       \______/                                                                         ', 0ah
+					byte'                                $$$$$$\                      $$\                                       ',0ah
+					byte'                               $$  __$$\                     $$ |                                         ', 0ah
+					byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
+					byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
+					byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
+					byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
+					byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
+					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+
+
+	jogador2Vencedor byte'                                                                                                        ', 0ah
+					byte'                                                                                                        ', 0ah
+					byte'       $$$$$\                                 $$\                                                        ', 0ah
+					byte'       \__$$ |                                $$ |                                   $$$$$$\             ', 0ah
+					byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 $$  __$$\               ', 0ah
+					byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                \__/  $$ |               ', 0ah
+					byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|               $$  ____/                ', 0ah
+					byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                     $$ |               ', 0ah
+					byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$$$\              ', 0ah
+					byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \________|			        ', 0ah
+					byte'                      $$\   $$ |                                                                        ', 0ah
+					byte'                      \$$$$$$  |                                                                        ', 0ah
+					byte'                       \______/                                                                         ', 0ah
+					byte'                                $$$$$$\                      $$\                                       ', 0ah
+					byte'                               $$  __$$\                     $$ |                                         ', 0ah
+					byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
+					byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
+					byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
+					byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
+					byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
+					byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+                                                       
+                                                       
+                                                       
+
+	.code
+	main PROC
+
 
 	INVOKE GetStdHandle, STD_OUTPUT_HANDLE
 	mov console, eax; save console handle
-
+	INVOKE PlaySound, OFFSET abertura, NULL, SND_FILENAME2
 	call printMoldura
+	INVOKE PlaySound, OFFSET file, NULL, SND_FILENAME
 	call iniciaMovimentacao
 
 exit
@@ -113,6 +173,8 @@ iniciaMovimentacao PROC
 	cmp dx, 'K'
 	jne ANIMATION
 	call MOVE_K
+		mov edx, OFFSET jogador2Vencedor
+		call WriteString
 	jmp ANIMATION
 
 iniciaMovimentacao ENDP
@@ -122,7 +184,7 @@ iniciaMovimentacao ENDP
 ;// Toda vez que eh apertado algum botao de movimentacao alguma das funcoes abaixo sera chamada para setar o valor de quanto se deve somar em X e 
 ;// quanto se deve somar em Y para que o objeto se mov na direcao desejada
 
-MOVE_A PROC USES eax edx
+MOVE_A PROC
 
 mov jogador1.somadorX, -1
 mov jogador1.somadorY, 0
@@ -130,7 +192,7 @@ ret
 
 MOVE_A ENDP
 
-MOVE_D PROC USES eax edx ecx
+MOVE_D PROC 
 
 mov jogador1.somadorX, 1
 mov jogador1.somadorY, 0
@@ -138,7 +200,7 @@ ret
 MOVE_D ENDP
 
 
-MOVE_S PROC USES eax edx ecx
+MOVE_S PROC 
 
 mov jogador1.somadorY, 1
 mov jogador1.somadorX, 0
@@ -146,7 +208,7 @@ ret
 
 MOVE_S ENDP
 
-MOVE_W PROC USES eax edx
+MOVE_W PROC 
 
 mov jogador1.somadorY, -1
 mov jogador1.somadorX, 0
@@ -155,14 +217,14 @@ MOVE_W ENDP
 
 ;//################## PROCEDIMENTOS DE CONTROLE DA MOVIMENTACAO JOGADOR 2 ##################//
 
-MOVE_J PROC USES eax edx
+MOVE_J PROC 
 
 mov jogador2.somadorX, -1
 mov jogador2.somadory, 0
 ret
 MOVE_J ENDP
 
-MOVE_L PROC USES eax edx ecx
+MOVE_L PROC 
 
 mov jogador2.somadorX, 1
 mov jogador2.somadory, 0
@@ -170,7 +232,7 @@ ret
 MOVE_L ENDP
 
 
-MOVE_K PROC USES eax edx ecx
+MOVE_K PROC
 
 mov jogador2.somadory, 1
 mov jogador2.somadorX, 0
@@ -178,7 +240,7 @@ ret
 
 MOVE_K ENDP
 
-MOVE_I PROC USES eax edx
+MOVE_I PROC
 
 mov jogador2.somadory, -1
 mov jogador2.somadorX, 0
@@ -187,7 +249,7 @@ MOVE_I ENDP
 
 ;//################## PROCEDIMENTO QUE EFETUA A INCERCAO DE CARACTERES NA TELA ##################//
 
-DESENHACARACTERE PROC USES eax edx ecx ebx
+DESENHACARACTERE PROC USES ecx
 
 	;// A estrutura ATRIBUTOJOGADOR é utilizada para a funcao de desenhar verificar onde cada objeto do jogo sera impresso (e suas caracteristicas), 
 	;// portanto eh apontado o inicio dela no registrador ESI (isso para cada jogador no momento em que for ser atualizado na tela)
@@ -226,7 +288,7 @@ ret
 DESENHACARACTERE ENDP
 ;//################## IMPRESSAO MOLDURA JOGO ##################// 
 
-printMoldura PROC  USES esi ecx
+printMoldura PROC 
 	mov esi, OFFSET moldura; //indicando o endereco do objeto moldura
 	mov ecx, COLS
 ;// definindo inicio da moldura superior
