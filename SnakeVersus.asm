@@ -28,167 +28,225 @@ pszSound : PTR BYTE,
 	somadorY	SDWORD ?
 	atributosJogador ENDS
 
+
 	.data
 
-	SND_FILENAME DWORD 00000001h
-	SND_FILENAME2 DWORD 00000002h
-
-	file BYTE "c:\\clap.wav", 0
-	abertura BYTE "c:\\SnakeVersus.wav", 0
-
-	console HANDLE 0
-	moldura atributosJogador < 0DBh, 0Fh, 0, 0, 0, 0>
-	jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 1, 0>
-	jogador2 atributosJogador < 0DBh, 09h, COLS - 2, ROWS / 2, -1, 0>
-
-	buffer atributosCaracteres ROWS * COLS DUP(<' ', 0Fh >)
-	bufferSize COORD <COLS, ROWS>
-	bufferCoord COORD <0, 0>
-	region SMALL_RECT <0, 0, COLS, ROWS >
-
-	telaInicial byte'		  ___           ___           ___           ___           ___			', 0ah
-	byte'	         /  /\         /__/\         /  /\         /__/|         /  /\					', 0ah
-	byte'	        /  /:/_        \  \:\       /  /::\       |  |:|        /  /:/_					', 0ah
-	byte'	       /  /:/ /\        \  \:\     /  /:/\:\      |  |:|       /  /:/ /\				', 0ah
-	byte'	      /  /:/ /::\   _____\__\:\   /  /:/_/::\   __|  |:|      /  /:/ /:/_				', 0ah
-	byte'             /__/:/ /:/\:\ /__/::::::::\ /__/:/ /:/\:\ /__/\_|:|____ /__/:/ /:/ /\			', 0ah
-	byte'             \  \:\/:/~/:/ \  \:\__\__\/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\/:/ /:/			', 0ah
-	byte'              \  \::/ /:/   \  \:\        \  \::/       \  \::/ ~~~   \  \::/ /:/			', 0ah
-	byte'               \__\/ /:/     \  \:\        \  \:\        \  \:\        \  \:\/:/		', 0ah
-	byte'		 /__/:/       \  \:\        \  \:\        \  \:\        \  \::/					', 0ah
-	byte'	         \__\/         \__\/         \__\/         \__\/         \__\/				', 0ah
-	byte'                       ___           ___           ___           ___           ___           ___    ', 0ah
-	byte'	        ___   /__/\         /  /\         /  /\         /  /\         /__/\         /  /\	', 0ah
-	byte'	       /__/\  \_ \:\       /  /:/_       /  /::\       /  /:/_        \  \:\       /  /:/_	', 0ah
-	byte'               \  \:\  \  \:\     /  /:/ /\     /  /:/\:\     /  /:/ /\        \  \:\     /  /:/ /\ ', 0ah
-	byte'	        \  \:\  \  \:\   /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\   ___  \  \:\   /  /:/ /::\', 0ah
-	byte'		 \  \:\  \__\:\ /__/:/ /:/ /\ /__/:/ /:/___ /__/:/ /:/\:\ /__/\  \__\:\ /__/:/ /:/\:\	', 0ah
-	byte'		  \  \:\ |  |:| \  \:\/:/ /:/ \  \:\/:::::/ \  \:\/:/~/:/ \  \:\ /  /:/ \  \:\/:/~/:/', 0ah
-	byte'		   \  \:\|  |:|  \  \::/ /:/   \  \::/~~~~   \  \::/ /:/   \  \:\  /:/   \  \::/ /:/', 0ah
-	byte'		    \  \:\__|:|   \  \:\/:/     \  \:\        \__\/ /:/     \  \:\/:/     \__\/ /:/	', 0ah
-	byte'		     \__\::::/     \  \::/       \  \:\         /__/:/       \  \::/        /__/:/	', 0ah
-	byte'			 ~~~~       \__\/         \__\/         \__\/         \__\/         \__\/		', 0ah
-	byte'																								', 0ah
-	byte'																								', 0ah
-	byte'		      PRESSIONE SPACE PARA 		      PRESSIONE P PARA INSTRUCOES						', 0ah
-	byte'			 INICIAR O JOGO					SOBRE O JOGO										', 0
-
-	instruction     byte' ', 0ah
-	byte'		                          ___                 _                     ', 0ah
-	byte'		  ___  ___  _____  ___   |  _| _ _  ___  ___ |_| ___  ___  ___		', 0ah
-	byte'		 |  _|| . ||     || . |  |  _|| | ||   ||  _|| || . ||   || . |     ', 0ah
-	byte'		 |___||___||_|_|_||___|  |_|  |___||_|_||___||_||___||_|_||__,|     ', 0ah
-	byte'                                       _									', 0ah
-	byte'        	               ___    |_| ___  ___  ___							', 0ah
-	byte'			      | . |   | || . || . || . |						', 0ah
-	byte'			      |___|  _| ||___||_  ||___|						', 0ah
-	byte'				    |___|     |___|									', 0ah
-	byte'																				      ', 0ah
-	byte'               O jogo Snake Versus tem como objetivo o duelo entre dois jogadores.   ', 0ah
-	byte'               Cada jogador deve movimentar sua Snake de forma que o campeao eh      ', 0ah
-	byte'               aquele que conseguir ficar o maior tempo sem colidir com a moldura    ', 0ah
-	byte'	       que delimita a tela de movimentacao, seu proprio corpo ou o				  ', 0ah
-	byte'	       do seu oponente.                                                           ', 0ah
-	byte'                                                                                     ', 0ah
-	byte'		          Jogador 1                       Jogador 2							  ', 0ah
-	byte'		            ____                             ____							  ', 0ah
-	byte'		           ||W ||                           ||I ||							  ', 0ah
-	byte'		       ____||__||____                   ____||__||___						  ', 0ah
-	byte'		      ||A |||S |||D ||                 ||J |||K |||L ||						  ', 0ah
-	byte'		      ||__|||__|||__||                 ||__|||__|||__||						  ', 0ah
-	byte'    	   	      |/__\|/__\|/__\|                 |/__\|/__\|/__\|					  ', 0ah
-	byte'																					  ', 0ah
-	byte'                            Pressione space para iniciar o jogo					  ', 0
-
-	jogador1Vencedor byte'                                                                                                        ', 0ah
-	byte'                                                                                                        ', 0ah
-	byte'       $$$$$\                                 $$\                                    $$\                ', 0ah
-	byte'       \__$$ |                                $$ |                                 $$$$ |               ', 0ah
-	byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 \_$$ |               ', 0ah
-	byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                  $$ |               ', 0ah
-	byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|                 $$ |               ', 0ah
-	byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                       $$ |               ', 0ah
-	byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$\              ', 0ah
-	byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \______|			        ', 0ah
-	byte'                      $$\   $$ |                                                                        ', 0ah
-	byte'                      \$$$$$$  |                                                                        ', 0ah
-	byte'                       \______/                                                                         ', 0ah
-	byte'                                $$$$$$\                      $$\                                       ', 0ah
-	byte'                               $$  __$$\                     $$ |                                         ', 0ah
-	byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
-	byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
-	byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
-	byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
-	byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
-	byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0
+	; http://www.jasinskionline.com/windowsapi/ref/p/playsound.html
 
 
-	jogador2Vencedor byte'                                                                                                        ', 0ah
-	byte'                                                                                                        ', 0ah
-	byte'       $$$$$\                                 $$\                                                        ', 0ah
-	byte'       \__$$ |                                $$ |                                   $$$$$$\             ', 0ah
-	byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 $$  __$$\               ', 0ah
-	byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                \__/  $$ |               ', 0ah
-	byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|               $$  ____/                ', 0ah
-	byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                     $$ |               ', 0ah
-	byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$$$\              ', 0ah
-	byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \________|			        ', 0ah
-	byte'                      $$\   $$ |                                                                        ', 0ah
-	byte'                      \$$$$$$  |                                                                        ', 0ah
-	byte'                       \______/                                                                         ', 0ah
-	byte'                                $$$$$$\                      $$\                                       ', 0ah
-	byte'                               $$  __$$\                     $$ |                                         ', 0ah
-	byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
-	byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
-	byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
-	byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
-	byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
-	byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0
+SND_ALIAS DWORD 00010000h
+
+SND_ALIAS_ID DWORD 00110000h
+
+SND_APPLICATION DWORD 00000080h
+
+SND_ASYNC DWORD 00000001h
+
+SND_SYNC DWORD 00000000h
+
+SND_LOOP DWORD 00000008h
+
+SND_LOOPASYNC DWORD 00000009h
+
+SND_NOSTOP DWORD 00000010h
+
+musicaFundo BYTE "c:\\musicaFundo.wav", 0
+iniciaJogo BYTE "c:\\iniciaJogo.wav", 0
+mover BYTE "c:\\mover.wav", 0
+colisao BYTE "c:\\explosao.wav", 0
+vencedor BYTE "c:\\vencedor.wav", 0
 
 
+console HANDLE 0
+moldura atributosJogador < 0DBh, 06h, 0, 0, 0, 0>
+jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 1, 0>
+jogador2 atributosJogador < 0DBh, 09h, COLS - 2, ROWS / 2, -1, 0>
+
+buffer atributosCaracteres ROWS * COLS DUP(<' ', 0Fh >)
+bufferSize COORD <COLS, ROWS>
+bufferCoord COORD <0, 0>
+region SMALL_RECT <0, 0, COLS, ROWS >
+
+Snake byte'		  ___           ___           ___           ___           ___			', 0ah
+byte'	         /  /\         /__/\         /  /\         /__/|         /  /\					', 0ah
+byte'	        /  /:/_        \  \:\       /  /::\       |  |:|        /  /:/_					', 0ah
+byte'	       /  /:/ /\        \  \:\     /  /:/\:\      |  |:|       /  /:/ /\				', 0ah
+byte'	      /  /:/ /::\   _____\__\:\   /  /:/_/::\   __|  |:|      /  /:/ /:/_				', 0ah
+byte'             /__/:/ /:/\:\ /__/::::::::\ /__/:/ /:/\:\ /__/\_|:|____ /__/:/ /:/ /\			', 0ah
+byte'             \  \:\/:/~/:/ \  \:\__\__\/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\/:/ /:/			', 0ah
+byte'              \  \::/ /:/   \  \:\        \  \::/       \  \::/ ~~~   \  \::/ /:/			', 0ah
+byte'               \__\/ /:/     \  \:\        \  \:\        \  \:\        \  \:\/:/		', 0ah
+byte'		 /__/:/       \  \:\        \  \:\        \  \:\        \  \::/					', 0ah
+byte'	         \__\/         \__\/         \__\/         \__\/         \__\/				', 0
 
 
-	.code
-	main PROC
+Versus byte'																					', 0ah
+byte'                       ___           ___           ___           ___           ___           ___    ', 0ah
+byte'	        ___   /__/\         /  /\         /  /\         /  /\         /__/\         /  /\	', 0ah
+byte'	       /__/\  \_ \:\       /  /:/_       /  /::\       /  /:/_        \  \:\       /  /:/_	', 0ah
+byte'               \  \:\  \  \:\     /  /:/ /\     /  /:/\:\     /  /:/ /\        \  \:\     /  /:/ /\ ', 0ah
+byte'	        \  \:\  \  \:\   /  /:/ /:/_   /  /:/~/:/    /  /:/ /::\   ___  \  \:\   /  /:/ /::\', 0ah
+byte'		 \  \:\  \__\:\ /__/:/ /:/ /\ /__/:/ /:/___ /__/:/ /:/\:\ /__/\  \__\:\ /__/:/ /:/\:\	', 0ah
+byte'		  \  \:\ |  |:| \  \:\/:/ /:/ \  \:\/:::::/ \  \:\/:/~/:/ \  \:\ /  /:/ \  \:\/:/~/:/', 0ah
+byte'		   \  \:\|  |:|  \  \::/ /:/   \  \::/~~~~   \  \::/ /:/   \  \:\  /:/   \  \::/ /:/', 0ah
+byte'		    \  \:\__|:|   \  \:\/:/     \  \:\        \__\/ /:/     \  \:\/:/     \__\/ /:/	', 0ah
+byte'		     \__\::::/     \  \::/       \  \:\         /__/:/       \  \::/        /__/:/	', 0ah
+byte'			 ~~~~       \__\/         \__\/         \__\/         \__\/         \__\/		', 0ah
+byte'																								', 0ah
+byte'		      PRESSIONE SPACE PARA 		      PRESSIONE P PARA INSTRUCOES						', 0ah
+byte'			 INICIAR O JOGO					SOBRE O JOGO										', 0
 
-	menu:
-	INVOKE PlaySound, OFFSET abertura, NULL, SND_FILENAME2
-	call inicializarJogo
+instruction     byte' ', 0ah
+byte'		                          ___                 _                     ', 0ah
+byte'		  ___  ___  _____  ___   |  _| _ _  ___  ___ |_| ___  ___  ___		', 0ah
+byte'		 |  _|| . ||     || . |  |  _|| | ||   ||  _|| || . ||   || . |     ', 0ah
+byte'		 |___||___||_|_|_||___|  |_|  |___||_|_||___||_||___||_|_||__,|     ', 0ah
+byte'                                       _									', 0ah
+; byte'        	               ___    |_| ___  ___  ___							', 0ah
+; byte'			      | . |   | || . || . || . |						', 0ah
+; byte'			      |___|  _| ||___||_  ||___|						', 0ah
+; byte'				    |___|     |___|									', 0ah
+byte'																				      ', 0ah
+byte'               O jogo Snake Versus tem como objetivo o duelo entre dois jogadores.   ', 0ah
+byte'               Cada jogador deve movimentar sua Snake de forma que o campeao eh      ', 0ah
+byte'               aquele que conseguir ficar o maior tempo sem colidir com a moldura    ', 0ah
+byte'	       que delimita a tela de movimentacao, seu proprio corpo ou o				  ', 0ah
+byte'	       do seu oponente.                                                           ', 0ah
+byte'                                                                                     ', 0ah
+byte'		          Jogador 1                       Jogador 2							  ', 0ah
+byte'		            ____                             ____							  ', 0ah
+byte'		           ||W ||                           ||I ||							  ', 0ah
+byte'		       ____||__||____                   ____||__||___						  ', 0ah
+byte'		      ||A |||S |||D ||                 ||J |||K |||L ||						  ', 0ah
+byte'		      ||__|||__|||__||                 ||__|||__|||__||						  ', 0ah
+byte'    	   	      |/__\|/__\|/__\|                 |/__\|/__\|/__\|					  ', 0ah
+byte'																					  ', 0ah
+byte'                            Pressione space para iniciar o jogo					  ', 0
 
-	INICIA::
-	call Clrscr
-	INVOKE PlaySound, OFFSET file, NULL, SND_FILENAME
-	INVOKE GetStdHandle, STD_OUTPUT_HANDLE
-	mov console, eax; save console handle
+jogador1Vencedor byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'       $$$$$\                                 $$\                                    $$\                ', 0ah
+byte'       \__$$ |                                $$ |                                 $$$$ |               ', 0ah
+byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 \_$$ |               ', 0ah
+byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                  $$ |               ', 0ah
+byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|                 $$ |               ', 0ah
+byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                       $$ |               ', 0ah
+byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$\              ', 0ah
+byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \______|			        ', 0ah
+byte'                      $$\   $$ |                                                                        ', 0ah
+byte'                      \$$$$$$  |                                                                        ', 0ah
+byte'                       \______/                                                                         ', 0ah
+byte'                                $$$$$$\                      $$\                                       ', 0ah
+byte'                               $$  __$$\                     $$ |                                         ', 0ah
+byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
+byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
+byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
+byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
+byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
+byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                            Pressione qualquer tecla para retornar ao menu inicial					  ', 0
 
-	call printMoldura
-	
-	call iniciaMovimentacao
 
-	COLIDIU::
-	call Clrscr
-	cmp esi, OFFSET jogador1
-	je jogador1bateu
-	jogador2bateu :
-	mov edx, OFFSET jogador1Vencedor
-	call WriteString
-	jmp fim
-	jogador1bateu :
+jogador2Vencedor byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'       $$$$$\                                 $$\                                                        ', 0ah
+byte'       \__$$ |                                $$ |                                   $$$$$$\             ', 0ah
+byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 $$  __$$\               ', 0ah
+byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                \__/  $$ |               ', 0ah
+byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|               $$  ____/                ', 0ah
+byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                     $$ |               ', 0ah
+byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$$$\              ', 0ah
+byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|		           \________|			        ', 0ah
+byte'                      $$\   $$ |                                                                        ', 0ah
+byte'                      \$$$$$$  |                                                                        ', 0ah
+byte'                       \______/                                                                         ', 0ah
+byte'                                $$$$$$\                      $$\                                       ', 0ah
+byte'                               $$  __$$\                     $$ |                                         ', 0ah
+byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\             ', 0ah
+byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |       ', 0ah
+byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |        ', 0ah
+byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |          ', 0ah
+byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |         ', 0ah
+byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/          ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                                                                                                        ', 0ah
+byte'                            Pressione qualquer tecla para retornar ao menu inicial					  ', 0
 
-	mov edx, OFFSET jogador2Vencedor
-	call WriteString
+; http://www.jasinskionline.com/windowsapi/ref/p/playsound.html
 
-	fim : call ReadChar
-	exit
-	main ENDP
 
-	;//################## FUNCAO PARA INICIALIZACAO DO JOGO
+.code
+main PROC
+
+menu::
+call Clrscr
+
+call inicializarJogo
+
+INICIA::
+
+call Clrscr
+INVOKE PlaySound, OFFSET iniciaJogo, NULL, SND_ASYNC
+INVOKE GetStdHandle, STD_OUTPUT_HANDLE
+mov console, eax; save console handle
+call printMoldura
+call iniciaMovimentacao
+
+COLIDIU::
+INVOKE PlaySound, OFFSET colisao, NULL, SND_SYNC
+call Clrscr
+cmp esi, OFFSET jogador1
+je jogador1bateu
+
+jogador2bateu :
+mov  eax, 05h
+call SetTextColor
+mov edx, OFFSET jogador1Vencedor
+call WriteString
+jmp fim
+
+jogador1bateu :
+mov  eax, blue
+call SetTextColor
+mov edx, OFFSET jogador2Vencedor
+call WriteString
+
+fim :
+INVOKE PlaySound, OFFSET vencedor, NULL, SND_ASYNC
+call ReadChar
+call ClearBuffer
+call reinicializaJogadores
+jmp menu
+exit
+main ENDP
+
+;//#################################### FUNCAO DO MENU JOGO ####################################
 inicializarJogo PROC
 
-mov edx, OFFSET telaInicial
+mov  eax, 06h
+call SetTextColor
+
+mov edx, OFFSET Snake
+call WriteString
+INVOKE PlaySound, OFFSET colisao, NULL, SND_ASYNC
+
+mov  eax, 700; sleep, to allow OS to time slice
+call Delay
+
+mov edx, OFFSET Versus
+call WriteString
+INVOKE PlaySound, OFFSET colisao, NULL, SND_ASYNC
+
+mov  eax, 700; sleep, to allow OS to time slice
+call Delay
+
+INVOKE PlaySound, OFFSET musicaFundo, NULL, SND_LOOPASYNC
 
 L1 :
-call WriteString
 call ReadChar
 cmp al, 20h
 je INICIA
@@ -201,17 +259,20 @@ jmp L1
 L2 :
 call Clrscr
 mov edx, OFFSET instruction
+mov  eax, yellow
+call SetTextColor
 call WriteString
+L3 :
 call ReadChar
 cmp al, 20h
 je INICIA
-jmp L2
+jmp L3
 
 ret
 
 inicializarJogo ENDP
 
-;//################## FUNCAO DE MOVIMENTACAO E ATUALIZACAO DE TELA DO JOGO ##################
+;//#################################### FUNCAO DE MOVIMENTACAO E ATUALIZACAO DE TELA DO JOGO ####################################
 iniciaMovimentacao PROC
 
 ANIMATION :
@@ -224,7 +285,7 @@ call Delay
 call ReadKey
 jz   ANIMATION; no key pressed yet
 
-;//################## VERIFICACAO MOVIMENTACAO JOGADOR 1 ##################//
+;//#################################### VERIFICACAO MOVIMENTACAO JOGADOR 1 ####################################
 moveA:
 cmp dx, 'A'
 jne moveD
@@ -284,10 +345,16 @@ iniciaMovimentacao ENDP
 ;// Toda vez que eh apertado algum botao de movimentacao alguma das funcoes abaixo sera chamada para setar o valor de quanto se deve somar em X e 
 ;// quanto se deve somar em Y para que o objeto se mov na direcao desejada
 
+somMover PROC
+INVOKE PlaySound, OFFSET mover, NULL, SND_ASYNC
+ret
+somMover ENDP
+
 MOVE_A PROC
 
 mov jogador1.somadorX, -1
 mov jogador1.somadorY, 0
+call somMover
 ret
 
 MOVE_A ENDP
@@ -296,6 +363,7 @@ MOVE_D PROC
 
 mov jogador1.somadorX, 1
 mov jogador1.somadorY, 0
+call somMover
 ret
 MOVE_D ENDP
 
@@ -304,6 +372,7 @@ MOVE_S PROC
 
 mov jogador1.somadorY, 1
 mov jogador1.somadorX, 0
+call somMover
 ret
 
 MOVE_S ENDP
@@ -312,6 +381,7 @@ MOVE_W PROC
 
 mov jogador1.somadorY, -1
 mov jogador1.somadorX, 0
+call somMover
 ret
 MOVE_W ENDP
 
@@ -321,6 +391,7 @@ MOVE_J PROC
 
 mov jogador2.somadorX, -1
 mov jogador2.somadory, 0
+call somMover
 ret
 MOVE_J ENDP
 
@@ -328,6 +399,7 @@ MOVE_L PROC
 
 mov jogador2.somadorX, 1
 mov jogador2.somadory, 0
+call somMover
 ret
 MOVE_L ENDP
 
@@ -336,6 +408,7 @@ MOVE_K PROC
 
 mov jogador2.somadory, 1
 mov jogador2.somadorX, 0
+call somMover
 ret
 
 MOVE_K ENDP
@@ -344,6 +417,7 @@ MOVE_I PROC
 
 mov jogador2.somadory, -1
 mov jogador2.somadorX, 0
+call somMover
 ret
 MOVE_I ENDP
 
@@ -461,15 +535,32 @@ mov  moldura.caractere, 0DBh
 ret
 
 printMoldura ENDP
+
 ClearBuffer PROC USES eax
 mov eax, 0
 
 BLANKS :
-mov buffer[eax * CHAR_INFO].Char, ' '
+
+mov buffer[eax * atributosCaracteres].Char, ' '
 inc eax
 cmp eax, ROWS * COLS
 jl BLANKS
 
 ret
 ClearBuffer ENDP
+
+
+reinicializaJogadores PROC
+
+mov jogador1.posicaox, 1
+mov jogador2.posicaox, COLS - 2
+mov jogador1.posicaoy, ROWS / 2
+mov jogador2.posicaoy, ROWS / 2
+mov jogador1.somadorx, 1
+mov jogador2.somadorx, -1
+mov jogador1.somadory, 0
+mov jogador2.somadory, 0
+
+ret
+reinicializaJogadores ENDP
 END main
