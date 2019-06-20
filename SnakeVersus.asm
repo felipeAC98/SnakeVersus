@@ -59,7 +59,8 @@ mover BYTE "c:\\mover.wav", 0
 colisao BYTE "c:\\explosao.wav", 0
 vencedor BYTE "c:\\vencedor.wav", 0
 
-
+ultimaPosBuffer DWORD 0
+cores BYTE 0
 console HANDLE 0
 moldura atributosJogador < 0DBh, 06h, 0, 0, 0, 0>
 jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 1, 0>
@@ -70,21 +71,52 @@ bufferSize COORD <COLS, ROWS>
 bufferCoord COORD <0, 0>
 region SMALL_RECT <0, 0, COLS, ROWS >
 
-Snake byte'                                                                               ', 0ah
-byte'                   ___           ___           ___           ___           ___       ', 0ah
-byte'                  /  /\         /__/\         /  /\         /__/|         /  /\      ', 0ah
-byte'                 /  /:/_        \  \:\       /  /::\       |  |:|        /  /:/_     ', 0ah
-byte'                /  /:/ /\        \  \:\     /  /:/\:\      |  |:|       /  /:/ /\    ', 0ah
-byte'               /  /:/ /::\   _____\__\:\   /  /:/_/::\   __|  |:|      /  /:/ /:/_   ', 0ah
-byte'              /__/:/ /:/\:\ /__/::::::::\ /__/:/ /:/\:\ /__/\_|:|____ /__/:/ /:/ /\  ', 0ah
-byte'              \  \:\/:/~/:/ \  \:\__\__\/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\/:/ /:/  ', 0ah
-byte'               \  \::/ /:/   \  \:\        \  \::/       \  \::/ ~~~   \  \::/ /:/   ', 0ah
-byte'                \__\/ /:/     \  \:\        \  \:\        \  \:\        \  \:\/:/    ', 0ah
-byte'                  /__/:/       \  \:\        \  \:\        \  \:\        \  \::/     ', 0ah
-byte'                  \__\/         \__\/         \__\/         \__\/         \__\/      ', 0
+Snake2   byte'                                                                                                    '
+byte'                   ___           ___           ___           ___           ___                      '
+byte'                  /  /\         /__/\         /  /\         /__/|         /  /\                     '
+byte'                 /  /:/_        \  \:\       /  /::\       |  |:|        /  /:/_                    '
+byte'                /  /:/ /\        \  \:\     /  /:/\:\      |  |:|       /  /:/ /\                   '
+byte'               /  /:/ /::\   _____\__\:\   /  /:/_/::\   __|  |:|      /  /:/ /:/_                  '
+byte'              /__/:/ /:/\:\ /__/::::::::\ /__/:/ /:/\:\ /__/\_|:|____ /__/:/ /:/ /\                 '
+byte'              \  \:\/:/~/:/ \  \:\__\__\/ \  \:\/:/__\/ \  \:\/:::::/ \  \:\/:/ /:/                 '
+byte'               \  \::/ /:/   \  \:\        \  \::/       \  \::/ ~~~   \  \::/ /:/                  '
+byte'                \__\/ /:/     \  \:\        \  \:\        \  \:\        \  \:\/:/                   '
+byte'                  /__/:/       \  \:\        \  \:\        \  \:\        \  \::/                    '
+byte'                  \__\/         \__\/         \__\/         \__\/         \__\/                     ', 0
 
 
-Versus byte'                                                                                           ', 0ah
+
+Snake   byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                           ######  ##    ##    ###    ##    ## ########                             '
+byte'                          ##    ## ###   ##   ## ##   ##   ##  ##                                   '
+byte'                          ##       ####  ##  ##   ##  ##  ##   ##                                   '
+byte'                           ######  ## ## ## ##     ## #####    ######                               '
+byte'                                ## ##  #### ######### ##  ##   ##                                   '
+byte'                          ##    ## ##   ### ##     ## ##   ##  ##                                   '
+byte'                           ######  ##    ## ##     ## ##    ## ########                             '
+byte'                                                                                                    '
+byte'                                                                                                    ', 0
+
+
+Versus  byte'                                                                                                    '
+byte'                                                                                                    '
+byte'            ##     ##    ########    ########      ######     ##     ##     ######                  '
+byte'            ##     ##    ##          ##     ##    ##    ##    ##     ##    ##    ##                 '
+byte'            ##     ##    ##          ##     ##    ##          ##     ##    ##                       '
+byte'            ##     ##    ######      ########      ######     ##     ##     ######                  '
+byte'             ##   ##     ##          ##   ##            ##    ##     ##          ##                 '
+byte'              ## ##      ##          ##    ##     ##    ##    ##     ##    ##    ##                 '
+byte'               ###       ########    ##     ##     ######      #######      ######                  '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                     PRESSIONE SPACE PARA         PRESSIONE P PARA INSTRUCOES                       '
+byte'                         INICIAR O JOGO                   SOBRE O JOGO                              ', 0
+
+
+
+Versus2 byte'                                                                                           ', 0ah
 byte'                  ___           ___           ___           ___           ___           ___       ', 0ah
 byte'         ___     /__/\         /  /\         /  /\         /  /\         /__/\         /  /\      ', 0ah
 byte'        /__/\    \_ \:\       /  /:/_       /  /::\       /  /:/_        \  \:\       /  /:/_     ', 0ah
@@ -157,59 +189,52 @@ byte"                          \ \_\                /\______/                   
 byte"                           \/_/                \/_____/                     \/___/          ", 0
 
 
-jogador1Vencedor byte'                                                                                       ', 0ah
-byte'                                                                                                        ', 0ah
-byte'       $$$$$\                                 $$\                                    $$\                ', 0ah
-byte'       \__$$ |                                $$ |                                 $$$$ |               ', 0ah
-byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 \_$$ |               ', 0ah
-byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                  $$ |               ', 0ah
-byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|                 $$ |               ', 0ah
-byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                       $$ |               ', 0ah
-byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$\              ', 0ah
-byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|                     \______|             ', 0ah
-byte'                      $$\   $$ |                                                                        ', 0ah
-byte'                      \$$$$$$  |                                                                        ', 0ah
-byte'                       \______/                                                                         ', 0ah
-byte'                                $$$$$$\                      $$\                                        ', 0ah
-byte'                               $$  __$$\                     $$ |                                       ', 0ah
-byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\            ', 0ah
-byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |           ', 0ah
-byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |           ', 0ah
-byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |           ', 0ah
-byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |           ', 0ah
-byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/            ', 0ah
-byte'                                                                                                        ', 0ah
-byte'                                                                                                        ', 0ah
-byte'                                      PRESSIONE "S" PARA SAIR OU QUALQUER                               ', 0ah
-byte'                                   OUTRA TECLA PARA RETORNAR AO MENU INICIAL                            ', 0
+jogador1Vencedor  byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'             ##  #######   ######      ###    ########   #######  ########          ##              '
+byte'             ## ##     ## ##    ##    ## ##   ##     ## ##     ## ##     ##       ####              '
+byte'             ## ##     ## ##         ##   ##  ##     ## ##     ## ##     ##         ##              '
+byte'             ## ##     ## ##   #### ##     ## ##     ## ##     ## ########          ##              '
+byte'       ##    ## ##     ## ##    ##  ######### ##     ## ##     ## ##   ##           ##              '
+byte'       ##    ## ##     ## ##    ##  ##     ## ##     ## ##     ## ##    ##          ##              '
+byte'        ######   #######   ######   ##     ## ########   #######  ##     ##       ######            '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                    ######      ###    ##    ## ##     ##  #######  ##     ##                       '
+byte'                   ##    ##    ## ##   ###   ## ##     ## ##     ## ##     ##                       '
+byte'                   ##         ##   ##  ####  ## ##     ## ##     ## ##     ##                       '
+byte'                   ##   #### ##     ## ## ## ## ######### ##     ## ##     ##                       '
+byte'                   ##    ##  ######### ##  #### ##     ## ##     ## ##     ##                       '
+byte'                   ##    ##  ##     ## ##   ### ##     ## ##     ## ##     ##                       '
+byte'                    ######   ##     ## ##    ## ##     ##  #######   #######                        '
+byte'                                                                                                    '
+byte'                               PRESSIONE "S" PARA SAIR OU QUALQUER                                  '
+byte'                           OUTRA TECLA PARA RETORNAR AO MENU INICIAL                                ', 0
 
 
-jogador2Vencedor byte'                                                                                       ', 0ah
-byte'                                                                                                        ', 0ah
-byte'       $$$$$\                                 $$\                                                       ', 0ah
-byte'       \__$$ |                                $$ |                                   $$$$$$\            ', 0ah
-byte'          $$ |$$$$$$\  $$$$$$\  $$$$$$\  $$$$$$$ |$$$$$$\  $$$$$$\                 $$  __$$\            ', 0ah
-byte'          $$ $$  __$$\$$  __$$\ \____$$\$$  __$$ $$  __$$\$$  __$$\                \__/  $$ |           ', 0ah
-byte'    $$\   $$ $$ /  $$ $$ /  $$ |$$$$$$$ $$ /  $$ $$ /  $$ $$ |  \__|               $$  ____/            ', 0ah
-byte'    $$ |  $$ $$ |  $$ $$ |  $$ $$  __$$ $$ |  $$ $$ |  $$ $$ |                     $$ |                 ', 0ah
-byte'    \$$$$$$  \$$$$$$  \$$$$$$$ \$$$$$$$ \$$$$$$$ \$$$$$$  $$ |                     $$$$$$$$\            ', 0ah
-byte'     \______/ \______/ \____$$ |\_______|\_______|\______/\__|                     \________|           ', 0ah
-byte'                      $$\   $$ |                                                                        ', 0ah
-byte'                      \$$$$$$  |                                                                        ', 0ah
-byte'                       \______/                                                                         ', 0ah
-byte'                                $$$$$$\                      $$\                                        ', 0ah
-byte'                               $$  __$$\                     $$ |                                       ', 0ah
-byte'                               $$ /  \__| $$$$$$\  $$$$$$$\  $$$$$$$\    $$$$$$\   $$\   $$\            ', 0ah
-byte'                               $$ |$$$$\  \____$$\ $$  __$$\ $$  __$$\  $$  __$$\  $$ |  $$ |           ', 0ah
-byte'                               $$ |\_$$ | $$$$$$$  $$ |  $$  $$ |  $$ | $$ /  $$ | $$ |  $$ |           ', 0ah
-byte'                               $$ |  $$  $$  __$$  $$ |  $$  $$ |  $$ | $$ |  $$ | $$ |  $$ |           ', 0ah
-byte'                               \$$$$$$   \$$$$$$$  $$ |  $$  $$ |  $$ | \$$$$$$  | \$$$$$$  |           ', 0ah
-byte'                                \______/  \_______ \__|  \__ \__|  \__|  \______/   \______/            ', 0ah
-byte'                                                                                                        ', 0ah
-byte'                                                                                                        ', 0ah
-byte'                                                                                                        ', 0ah
-byte'                                      PRESSIONE "S" PARA SAIR OU QUALQUER                               ', 0ah
-byte'                                   OUTRA TECLA PARA RETORNAR AO MENU INICIAL                            ', 0
+jogador2Vencedor  			byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'             ##  #######   ######      ###    ########   #######  ########         #######          '
+byte'             ## ##     ## ##    ##    ## ##   ##     ## ##     ## ##     ##       ##     ##         '
+byte'             ## ##     ## ##         ##   ##  ##     ## ##     ## ##     ##              ##         '
+byte'             ## ##     ## ##   #### ##     ## ##     ## ##     ## ########         #######          '
+byte'       ##    ## ##     ## ##    ##  ######### ##     ## ##     ## ##   ##         ##                '
+byte'       ##    ## ##     ## ##    ##  ##     ## ##     ## ##     ## ##    ##        ##                '
+byte'        ######   #######   ######   ##     ## ########   #######  ##     ##       #########         '
+byte'                                                                                                    '
+byte'                                                                                                    '
+byte'                    ######      ###    ##    ## ##     ##  #######  ##     ##                       '
+byte'                   ##    ##    ## ##   ###   ## ##     ## ##     ## ##     ##                       '
+byte'                   ##         ##   ##  ####  ## ##     ## ##     ## ##     ##                       '
+byte'                   ##   #### ##     ## ## ## ## ######### ##     ## ##     ##                       '
+byte'                   ##    ##  ######### ##  #### ##     ## ##     ## ##     ##                       '
+byte'                   ##    ##  ##     ## ##   ### ##     ## ##     ## ##     ##                       '
+byte'                    ######   ##     ## ##    ## ##     ##  #######   #######                        '
+byte'                                                                                                    '
+byte'                                 PRESSIONE "S" PARA SAIR OU QUALQUER                                '
+byte'                              OUTRA TECLA PARA RETORNAR AO MENU INICIAL                             ', 0
 
 ; http://www.jasinskionline.com/windowsapi/ref/p/playsound.html
 
@@ -218,6 +243,8 @@ byte'                                   OUTRA TECLA PARA RETORNAR AO MENU INICIA
 
 
 main PROC
+INVOKE GetStdHandle, STD_OUTPUT_HANDLE
+mov console, eax; save console handle
 
 menu::
 
@@ -229,40 +256,28 @@ call inicializarJogo
 INICIA::
 ;// chamada da tela para escolha da velocidade a ser jogada
 call Clrscr
+call ClearBuffer
 call escolheVelocidade
 
 call Clrscr
 INVOKE PlaySound, OFFSET iniciaJogo, NULL, SND_ASYNC
-INVOKE GetStdHandle, STD_OUTPUT_HANDLE
-mov console, eax; save console handle
 call printMoldura
 call iniciaMovimentacao
 
 ;// Se retornar aqui eh pq colidiu
 
 COLIDIU::
-INVOKE PlaySound, OFFSET colisao, NULL, SND_SYNC
-call Clrscr
-cmp esi, OFFSET jogador1
-je jogador1bateu
-
-jogador2bateu :
-mov  eax, 05h
-call SetTextColor
-mov edx, OFFSET jogador1Vencedor
-call WriteString
-jmp fimPartida
-
-jogador1bateu :
-mov  eax, blue
-call SetTextColor
-mov edx, OFFSET jogador2Vencedor
-call WriteString
+call houveColisao
 
 ;// finaliza partida apos uma colisao
-fimPartida:
 INVOKE PlaySound, OFFSET vencedor, NULL, SND_ASYNC
-call ReadChar
+
+fimPartida :
+call alteraCores
+mov  eax, 635; sleep, to allow OS to time slice
+call Delay
+call ReadKey
+jz fimPartida
 call ClearBuffer
 call reinicializaJogadores
 cmp al, 's'
@@ -290,7 +305,9 @@ mov  eax, 700;// Delay somente para tocar o som
 call Delay
 
 mov edx, OFFSET Versus
-call WriteString
+push edx
+call transformaImpressao
+; call WriteString
 INVOKE PlaySound, OFFSET colisao, NULL, SND_ASYNC
 
 mov  eax, 700;// Delay para nao cortar o som
@@ -299,12 +316,16 @@ call Delay
 INVOKE PlaySound, OFFSET musicaFundo, NULL, SND_LOOPASYNC
 
 L1 :
-call ReadChar
-cmp al, 20h
-je INICIA
-cmp al, 50h
+call alteraCores
+mov  eax, 635; sleep, to allow OS to time slice
+call Delay
+call ReadKey
+jz   L1
+cmp dl, 20h
+je fim
+cmp dl, 50h
 je L2
-cmp al, 070h
+cmp dl, 070h
 je L2
 jmp L1
 
@@ -318,8 +339,8 @@ call WriteString
 L3 :
 call ReadChar
 cmp al, 20h
-je INICIA
-jmp L3
+jne L3
+fim :
 
 ret
 
@@ -614,6 +635,8 @@ ret
 
 DESENHACARACTERE ENDP
 
+;//################## VERIFICA SE HOUVE COLISAO ##################// 
+
 verificaColisao PROC
 
 cmp buffer[eax * atributosCaracteres].Char, ' '
@@ -622,7 +645,28 @@ jne COLIDIU
 ret
 verificaColisao ENDP
 
+houveColisao PROC
+INVOKE PlaySound, OFFSET colisao, NULL, SND_SYNC
+call ClearBuffer
+cmp esi, OFFSET jogador1
+je jogador1bateu
 
+jogador2bateu :
+mov  eax, 05h
+call SetTextColor
+push OFFSET jogador1Vencedor
+call transformaImpressao
+jmp fimPartida
+
+jogador1bateu :
+mov  eax, blue
+call SetTextColor
+push OFFSET jogador2Vencedor
+call transformaImpressao
+
+fimPartida :
+ret
+houveColisao ENDP
 ;//################## IMPRESSAO MOLDURA JOGO ##################// 
 ;//Essa funcao eh responsavel pela insercao da moldura de limitacao na tela em que a batalha entre as cobrinhas irá ocorrer
 
@@ -694,10 +738,11 @@ mov eax, 0
 BLANKS :
 
 mov buffer[eax * atributosCaracteres].Char, ' '
+mov buffer[eax * atributosCaracteres].Atributos, 0fh
 inc eax
 cmp eax, ROWS * COLS
 jl BLANKS
-
+mov ultimaPosBuffer, 0;//resetando posicao inicial para printar tela
 ret
 ClearBuffer ENDP
 
@@ -729,26 +774,60 @@ transformaImpressao PROC
 push ebp
 mov ebp, esp
 
-;	mov eax, ebp + 8;// endereco no qual devera estar apontando a primeira posicao do que devera ser impresso
-mov eax, 0
-mov ebx, 0
+mov eax, ultimaPosBuffer;// endereco no qual devera estar apontando a proxima posicao que algo sera impresso no buffer
+mov edx, 0
+mov ecx, DWORD PTR[ebp + 8];//apontando para o endereco da variavel que possui oque sera escrito
 
 
 insereLinha:
-mov ebx, DWORD PTR[ebp + 8 + eax]
+
+movzx ebx, BYTE PTR[ecx + edx];//apontando para o endereco do proximo char a ser passado para o buffer
 cmp ebx, 0ah
 je proxChar
+cmp ebx, '#'
+jne naoAltera
+mov bx, 0DBh
 mov buffer[eax * atributosCaracteres].Char, bx
-; mov buffer[eax * atributosCaracteres].Char, ' '
+naoAltera :
+mov buffer[eax * atributosCaracteres].Char, bx
+mov buffer[eax * atributosCaracteres].Atributos, 0FH
 
-proxChar:
+
+proxChar :
 inc eax
-cmp BYTE PTR[ebp + 8 + eax], 0
+inc edx
+cmp ebx, 0
 jne insereLinha
+mov ultimaPosBuffer, eax
+invoke WriteConsoleOutput, console,
+ADDR buffer, bufferSize, bufferCoord, ADDR region
+
+pop ebp
+ret 4
+transformaImpressao ENDP
+
+alteraCores PROC
+mov dx, 0
+mov eax, 0
+
+proximoCaractere:
+
+; cmp buffer[eax * atributosCaracteres].Char, ' '
+; je naoAltera
+mov buffer[eax * atributosCaracteres].Atributos, dx
+naoAltera :
+inc eax
+add cores, 1
+mov dl, cores
+and dx, 00001111b
+cmp eax, COLS*ROWS
+
+jb proximoCaractere
 
 invoke WriteConsoleOutput, console,
 ADDR buffer, bufferSize, bufferCoord, ADDR region
+
 ret
-transformaImpressao ENDP
+alteraCores ENDP
 
 END main
