@@ -63,8 +63,9 @@ ultimaPosBuffer DWORD 0
 cores BYTE 0
 console HANDLE 0
 moldura atributosJogador < 0DBh, 06h, 0, 0, 0, 0>
-jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 1, 0>
+jogador1 atributosJogador < 0DBh, 05h, 1, ROWS / 2, 0, 0>
 jogador2 atributosJogador < 0DBh, 09h, COLS - 2, ROWS / 2, -1, 0>
+cobraMenu atributosJogador < 0DBh, 05h, 1, ROWS / 2, 0, 0>
 
 buffer atributosCaracteres ROWS * COLS DUP(<' ', 0Fh >)
 bufferSize COORD <COLS, ROWS>
@@ -262,6 +263,7 @@ call escolheVelocidade
 call Clrscr
 INVOKE PlaySound, OFFSET iniciaJogo, NULL, SND_ASYNC
 call printMoldura
+call reinicializaJogadores
 call iniciaMovimentacao
 
 ;// Se retornar aqui eh pq colidiu
@@ -278,8 +280,8 @@ mov  eax, 635; sleep, to allow OS to time slice
 call Delay
 call ReadKey
 jz fimPartida
-call ClearBuffer
 call reinicializaJogadores
+call ClearBuffer
 cmp al, 's'
 je fimJogo
 call Clrscr
@@ -316,16 +318,19 @@ call Delay
 INVOKE PlaySound, OFFSET musicaFundo, NULL, SND_LOOPASYNC
 
 L1 :
+mov esi, OFFSET jogador1
+; call DESENHACARACTERE
 call alteraCores
 mov  eax, 635; sleep, to allow OS to time slice
 call Delay
 call ReadKey
 jz   L1
-cmp dl, 20h
+
+cmp dx, 20h
 je fim
-cmp dl, 50h
+cmp dx, 50h
 je L2
-cmp dl, 070h
+cmp dx, 070h
 je L2
 jmp L1
 
@@ -375,6 +380,7 @@ SAIR :
 	escolheVelocidade ENDP
 
 	;//#################################### FUNCAO DE MOVIMENTACAO E ATUALIZACAO DE TELA DO JOGO ####################################
+
 iniciaMovimentacao PROC
 
 ANIMATION :
@@ -387,31 +393,36 @@ call Delay
 call ReadKey
 jz   ANIMATION; no key pressed yet
 
+
 ;//#################################### VERIFICACAO MOVIMENTACAO JOGADOR 1 ####################################
+
 moveA:
 cmp dx, 'A'
 jne moveD
-call MOVE_A
+mov esi, OFFSET jogador1
+call MOVE_ESQUERDA
 jmp ANIMATION
 
 moveD :
 cmp dx, 'D'
 jne moveS
-call MOVE_D
+mov esi, OFFSET jogador1
+call MOVE_DIREITA
 jmp ANIMATION
 
 moveS :
 cmp dx, 'S'
 jne moveW
-call MOVE_S
+mov esi, OFFSET jogador1
+call MOVE_BAIXO
 jmp ANIMATION
 
 moveW :
 cmp dx, 'W'
 jne moveI
-call MOVE_W
+mov esi, OFFSET jogador1
+call MOVE_CIMA
 jmp ANIMATION
-
 
 
 ;//################## VERIFICACAO MOVIMENTACAO JOGADOR 2 ##################//
@@ -419,176 +430,115 @@ jmp ANIMATION
 moveI:
 cmp dx, 'I'
 jne moveJ
-call MOVE_I
+mov esi, OFFSET jogador2
+call MOVE_CIMA
 jmp ANIMATION
 
 moveJ :
 cmp dx, 'J'
 jne moveL
-call MOVE_J
+mov esi, OFFSET jogador2
+call MOVE_ESQUERDA
 jmp ANIMATION
 
 moveL :
 cmp dx, 'L'
 jne moveK
-call MOVE_L
+mov esi, OFFSET jogador2
+call MOVE_DIREITA
 jmp ANIMATION
 
 moveK :
 cmp dx, 'K'
 jne ANIMATION
-call MOVE_K
+mov esi, OFFSET jogador2
+call MOVE_BAIXO
 jmp ANIMATION
 
 iniciaMovimentacao ENDP
 
-;//################## PROCEDIMENTOS DE CONTROLE DA MOVIMENTACAO JOGADOR 1 ##################//
+;//################## PROCEDIMENTOS DE CONTROLE DA MOVIMENTACAO JOGADOR 1 e 2 ##################//
 
 ;// Toda vez que eh apertado algum botao de movimentacao alguma das funcoes abaixo sera chamada para setar o valor de quanto se deve somar em X e 
-;// quanto se deve somar em Y para que o objeto se mov na direcao desejada
+;// quanto se deve somar em Y para que o objeto(jogador) se mova na direcao desejada
 
 somMover PROC
 INVOKE PlaySound, OFFSET mover, NULL, SND_ASYNC
 ret
 somMover ENDP
 
-MOVE_A PROC
+MOVE_ESQUERDA PROC
 
-cmp jogador1.somadorX, -1
+mov eax, SDWORD PTR[esi + 12];  // SomadorX
+cmp eax, -1;// comparando somador X com -1, o jogador nao deve pressionar para permanecer na mesma direcao na qual ja esta indo
 jne semTrapaca
-mov jogador1.somadorX, 1
+mov SDWORD PTR[esi + 12], 1
 jmp fim
 
 semTrapaca :
-mov jogador1.somadorX, -1
-mov jogador1.somadorY, 0
+mov SDWORD PTR[esi + 12], -1
+mov SDWORD PTR[esi + 16], 0;// Somador Y
 call somMover
 
 fim :
 ret
 
-MOVE_A ENDP
+MOVE_ESQUERDA ENDP
 
-MOVE_D PROC
-cmp jogador1.somadorX, 1
+MOVE_DIREITA PROC
+
+mov eax, SDWORD PTR[esi + 12];  // SomadorX
+cmp eax, 1;// comparando somador X com -1, o jogador nao deve pressionar para permanecer na mesma direcao na qual ja esta indo
 jne semTrapaca
-mov jogador1.somadorX, -1
+mov SDWORD PTR[esi + 12], -1
 jmp fim
 
 semTrapaca :
-mov jogador1.somadorX, 1
-mov jogador1.somadorY, 0
-call somMover
-
-fim :
-ret
-MOVE_D ENDP
-
-
-MOVE_S PROC
-cmp jogador1.somadorY, 1
-jne semTrapaca
-mov jogador1.somadorY, -1
-jmp fim
-
-semTrapaca :
-
-mov jogador1.somadorY, 1
-mov jogador1.somadorX, 0
+mov SDWORD PTR[esi + 12], 1
+mov SDWORD PTR[esi + 16], 0;// Somador Y
 call somMover
 
 fim :
 ret
 
-MOVE_S ENDP
+MOVE_DIREITA ENDP
 
-MOVE_W PROC
-cmp jogador1.somadorY, -1
+
+MOVE_BAIXO PROC
+
+mov eax, SDWORD PTR[esi + 16];  // SomadorX
+cmp eax, 1;// comparando somador X com -1, o jogador nao deve pressionar para permanecer na mesma direcao na qual ja esta indo
 jne semTrapaca
-mov jogador1.somadorY, 1
+mov SDWORD PTR[esi + 16], -1
 jmp fim
 
 semTrapaca :
-
-
-mov jogador1.somadorY, -1
-mov jogador1.somadorX, 0
+mov SDWORD PTR[esi + 16], 1
+mov SDWORD PTR[esi + 12], 0;// Somador Y
 call somMover
 
 fim :
 ret
-MOVE_W ENDP
 
-;//################## PROCEDIMENTOS DE CONTROLE DA MOVIMENTACAO JOGADOR 2 ##################//
+MOVE_BAIXO ENDP
 
-MOVE_J PROC
+MOVE_CIMA PROC
 
-cmp jogador2.somadorX, -1
+mov eax, SDWORD PTR[esi + 16];  // SomadorX
+cmp eax, -1;// comparando somador X com -1, o jogador nao deve pressionar para permanecer na mesma direcao na qual ja esta indo
 jne semTrapaca
-mov jogador2.somadorX, 1
+mov SDWORD PTR[esi + 16], 1
 jmp fim
 
 semTrapaca :
-
-mov jogador2.somadorX, -1
-mov jogador2.somadory, 0
+mov SDWORD PTR[esi + 16], -1
+mov SDWORD PTR[esi + 12], 0;// Somador Y
 call somMover
 
 fim :
 ret
-MOVE_J ENDP
 
-MOVE_L PROC
-
-
-cmp jogador2.somadorX, 1
-jne semTrapaca
-mov jogador2.somadorX, -1
-jmp fim
-
-semTrapaca :
-
-mov jogador2.somadorX, 1
-mov jogador2.somadory, 0
-call somMover
-fim :
-ret
-MOVE_L ENDP
-
-
-MOVE_K PROC
-
-
-cmp jogador2.somadorY, 1
-jne semTrapaca
-mov jogador2.somadorY, -1
-jmp fim
-
-semTrapaca :
-
-mov jogador2.somadory, 1
-mov jogador2.somadorX, 0
-call somMover
-fim :
-ret
-
-MOVE_K ENDP
-
-MOVE_I PROC
-
-cmp jogador2.somadorY, -1
-jne semTrapaca
-mov jogador2.somadorY, 1
-jmp fim
-
-semTrapaca :
-
-mov jogador2.somadory, -1
-mov jogador2.somadorX, 0
-call somMover
-fim :
-ret
-MOVE_I ENDP
+MOVE_CIMA ENDP
 
 ;//################## PROCEDIMENTO QUE EFETUA A INCERCAO DE CARACTERES NA TELA ##################//
 
@@ -625,6 +575,7 @@ add eax, [esi + 4];    // Posicao X
 
 call verificaColisao
 
+estaParado :
 mov buffer[eax * atributosCaracteres].Char, bx; posicao no vetor * tamanho de cada variavel
 mov bx, WORD PTR[esi + 2];   // Cor caracter
 mov buffer[eax * atributosCaracteres].Atributos, bx; aqui que eh o desenho da linha da tela
